@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useKegiatanStore } from '@/stores/kegiatan'
 import { useKegiatanEksternalStore } from '@/stores/kegiatanEksternal'
-import type { KegiatanInternal, CreateKegiatanPayload } from '@/types/kegiatan'
+import type { KegiatanEksternal, CreateKegiatanEksternalPayload } from '@/types/kegiatanEksternal'
 import {
   LayoutDashboard,
   Calendar,
@@ -14,7 +14,7 @@ import {
   Search,
   MapPin,
   Users,
-  Briefcase,
+  Building2,
   Edit2,
   Trash2,
   AlertCircle,
@@ -28,18 +28,19 @@ import {
   LogOut,
   Sparkles,
   Server,
+  UserCheck,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
-const kegiatanStore = useKegiatanStore()
-const kegiatanEksternalStore = useKegiatanEksternalStore()
+const kegiatanInternalStore = useKegiatanStore()
+const kegiatanStore = useKegiatanEksternalStore()
 
 // State Form Modal
 const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const isDeleteModalOpen = ref(false)
-const selectedItem = ref<KegiatanInternal | null>(null)
+const selectedItem = ref<KegiatanEksternal | null>(null)
 
 // Toast Alert
 const toastMessage = ref<string | null>(null)
@@ -54,21 +55,21 @@ function showToast(message: string, type: 'success' | 'danger' = 'success') {
 }
 
 // Form state
-const formData = reactive<CreateKegiatanPayload & { no?: number }>({
+const formData = reactive<CreateKegiatanEksternalPayload & { no?: number }>({
   no: undefined,
   tanggal: '',
   tempat: '',
   nama_kegiatan: '',
-  pelaksana: 'Pengurus Harian',
-  keterangan: '',
-  jumlah_peserta: '',
+  pelaksana: 'PC IPNU Kab. Pekalongan',
+  keterangan: 'Menghadiri',
+  delegasi_pac: '',
 })
 
 onMounted(async () => {
   try {
     await Promise.all([
       kegiatanStore.fetchItems(),
-      kegiatanEksternalStore.fetchItems(),
+      kegiatanInternalStore.fetchItems(),
     ])
   } catch (err) {
     console.error('Initial fetch failed:', err)
@@ -86,13 +87,13 @@ function openCreateModal() {
   formData.tanggal = `${dd}/${mm}/${yyyy}`
   formData.tempat = ''
   formData.nama_kegiatan = ''
-  formData.pelaksana = 'Pengurus Harian'
-  formData.keterangan = ''
-  formData.jumlah_peserta = ''
+  formData.pelaksana = 'PC IPNU Kab. Pekalongan'
+  formData.keterangan = 'Menghadiri'
+  formData.delegasi_pac = ''
   isModalOpen.value = true
 }
 
-function openEditModal(item: KegiatanInternal) {
+function openEditModal(item: KegiatanEksternal) {
   isEditMode.value = true
   formData.no = item.no
   formData.tanggal = item.tanggal
@@ -100,11 +101,11 @@ function openEditModal(item: KegiatanInternal) {
   formData.nama_kegiatan = item.nama_kegiatan
   formData.pelaksana = item.pelaksana
   formData.keterangan = item.keterangan
-  formData.jumlah_peserta = item.jumlah_peserta ?? ''
+  formData.delegasi_pac = item.delegasi_pac || ''
   isModalOpen.value = true
 }
 
-function openDeleteModal(item: KegiatanInternal) {
+function openDeleteModal(item: KegiatanEksternal) {
   selectedItem.value = item
   isDeleteModalOpen.value = true
 }
@@ -124,9 +125,9 @@ async function handleSave() {
         nama_kegiatan: formData.nama_kegiatan.trim(),
         pelaksana: formData.pelaksana?.trim() || '-',
         keterangan: formData.keterangan?.trim() || '-',
-        jumlah_peserta: formData.jumlah_peserta !== '' ? formData.jumlah_peserta : null,
+        delegasi_pac: formData.delegasi_pac?.trim() || '-',
       })
-      showToast('Kegiatan internal berhasil diperbarui!', 'success')
+      showToast('Kegiatan eksternal berhasil diperbarui!', 'success')
     } else {
       await kegiatanStore.createItem({
         tanggal: formData.tanggal.trim(),
@@ -134,9 +135,9 @@ async function handleSave() {
         nama_kegiatan: formData.nama_kegiatan.trim(),
         pelaksana: formData.pelaksana?.trim() || '-',
         keterangan: formData.keterangan?.trim() || '-',
-        jumlah_peserta: formData.jumlah_peserta !== '' ? formData.jumlah_peserta : null,
+        delegasi_pac: formData.delegasi_pac?.trim() || '-',
       })
-      showToast('Kegiatan baru berhasil ditambahkan!', 'success')
+      showToast('Kegiatan eksternal baru berhasil ditambahkan!', 'success')
     }
     isModalOpen.value = false
   } catch (err: unknown) {
@@ -186,15 +187,15 @@ async function handleLogout() {
             <LayoutDashboard :size="18" />
             <span>Dashboard</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-internal" class="menu-item active">
+          <RouterLink to="/kegiatan-internal" class="menu-item">
             <Calendar :size="18" />
             <span>Kegiatan Internal</span>
-            <span class="item-badge" v-if="kegiatanStore.totalKegiatan">{{ kegiatanStore.totalKegiatan }}</span>
+            <span class="item-badge" v-if="kegiatanInternalStore.totalKegiatan">{{ kegiatanInternalStore.totalKegiatan }}</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-eksternal" class="menu-item">
+          <RouterLink to="/kegiatan-eksternal" class="menu-item active">
             <Compass :size="18" />
             <span>Kegiatan Eksternal</span>
-            <span class="item-badge" v-if="kegiatanEksternalStore.totalKegiatan">{{ kegiatanEksternalStore.totalKegiatan }}</span>
+            <span class="item-badge" v-if="kegiatanStore.totalKegiatan">{{ kegiatanStore.totalKegiatan }}</span>
           </RouterLink>
         </div>
 
@@ -261,7 +262,7 @@ async function handleLogout() {
           <input
             v-model="kegiatanStore.searchQuery"
             type="text"
-            placeholder="Cari kegiatan, tempat, tanggal..."
+            placeholder="Cari kegiatan luar, tempat, delegasi..."
             class="search-input"
           />
         </div>
@@ -299,9 +300,9 @@ async function handleLogout() {
         <!-- Header Row -->
         <div class="page-header-row">
           <div>
-            <h1 class="page-title">Kegiatan Internal PAC</h1>
+            <h1 class="page-title">Kegiatan Eksternal PAC</h1>
             <p class="page-desc">
-              Kelola seluruh agenda rapat, kegiatan harian, dan sidang program kerja (Sheet: <code>kegiatan-internal</code>)
+              Kelola undangan kegiatan luar, rapat koordinasi cabang/wilayah, dan delegasi terutus (Sheet: <code>kegiatan-eksternal</code>)
             </p>
           </div>
           <div class="header-action-group">
@@ -315,44 +316,47 @@ async function handleLogout() {
             </button>
             <button class="btn btn-primary" @click="openCreateModal">
               <Plus :size="16" />
-              <span>Tambah Kegiatan</span>
+              <span>Tambah Kegiatan Eksternal</span>
             </button>
           </div>
         </div>
 
         <!-- 3 PASTEL STAT CARDS -->
         <section class="stats-grid">
+          <!-- Card 1: Lime Pastel -->
           <div class="pastel-card lime">
             <div class="card-top">
               <div class="icon-circle lime">
-                <Calendar :size="16" />
+                <Compass :size="16" />
               </div>
             </div>
-            <span class="card-category">Total Kegiatan</span>
+            <span class="card-category">Total Kegiatan Luar</span>
             <div class="card-value">{{ kegiatanStore.totalKegiatan }}</div>
-            <span class="card-hint">Agenda terdaftar</span>
+            <span class="card-hint">Undangan dihadiri</span>
           </div>
 
+          <!-- Card 2: Teal Pastel -->
           <div class="pastel-card teal">
             <div class="card-top">
               <div class="icon-circle teal">
-                <Users :size="16" />
+                <UserCheck :size="16" />
               </div>
             </div>
-            <span class="card-category">Total Peserta Terdata</span>
-            <div class="card-value">{{ kegiatanStore.totalPeserta }}</div>
-            <span class="card-hint">Partisipan aktif</span>
+            <span class="card-category">Delegasi PAC Terutus</span>
+            <div class="card-value">{{ kegiatanStore.totalDelegasiTerutus }}</div>
+            <span class="card-hint">Total kehadiran kader</span>
           </div>
 
+          <!-- Card 3: Purple Pastel -->
           <div class="pastel-card purple">
             <div class="card-top">
               <div class="icon-circle purple">
-                <Briefcase :size="16" />
+                <Building2 :size="16" />
               </div>
             </div>
-            <span class="card-category">Entitas Pelaksana</span>
+            <span class="card-category">Instansi / Penyelenggara</span>
             <div class="card-value">{{ kegiatanStore.pelaksanaList.length }}</div>
-            <span class="card-hint">Kelompok pelaksana</span>
+            <span class="card-hint">Mitra organisasi</span>
           </div>
         </section>
 
@@ -364,14 +368,14 @@ async function handleLogout() {
               v-model="kegiatanStore.searchQuery"
               type="text"
               class="form-input search-input-sm"
-              placeholder="Cari berdasarkan nama kegiatan, tempat, pelaksana..."
+              placeholder="Cari berdasarkan nama kegiatan, penyelenggara, tempat, delegasi..."
             />
           </div>
 
           <div class="filter-box">
-            <label class="filter-label">Filter Pelaksana:</label>
+            <label class="filter-label">Filter Penyelenggara:</label>
             <select v-model="kegiatanStore.selectedPelaksana" class="filter-select">
-              <option value="all">Semua Pelaksana</option>
+              <option value="all">Semua Penyelenggara</option>
               <option v-for="pelaksana in kegiatanStore.pelaksanaList" :key="pelaksana" :value="pelaksana">
                 {{ pelaksana }}
               </option>
@@ -384,7 +388,7 @@ async function handleLogout() {
           <div class="table-header-row">
             <div class="table-title">
               <FileSpreadsheet :size="18" class="text-teal" />
-              <h3>Daftar Agenda Kegiatan</h3>
+              <h3>Daftar Agenda Kegiatan Eksternal</h3>
             </div>
             <span class="badge badge-info">
               {{ kegiatanStore.filteredItems.length }} dari {{ kegiatanStore.totalKegiatan }} Kegiatan
@@ -399,9 +403,9 @@ async function handleLogout() {
 
           <!-- Empty State -->
           <div v-else-if="kegiatanStore.filteredItems.length === 0" class="empty-state">
-            <Calendar :size="48" class="empty-icon" />
-            <h4>Tidak ada kegiatan ditemukan</h4>
-            <p>Coba sesuaikan kata kunci pencarian atau tambahkan kegiatan baru.</p>
+            <Compass :size="48" class="empty-icon" />
+            <h4>Tidak ada kegiatan eksternal ditemukan</h4>
+            <p>Coba sesuaikan kata kunci pencarian atau tambahkan kegiatan eksternal baru.</p>
             <button class="btn btn-primary btn-sm" @click="openCreateModal">
               <Plus :size="15" /> Tambah Kegiatan
             </button>
@@ -416,9 +420,9 @@ async function handleLogout() {
                   <th style="width: 120px;">Tanggal</th>
                   <th>Nama Kegiatan</th>
                   <th>Tempat</th>
-                  <th>Pelaksana</th>
+                  <th>Penyelenggara</th>
                   <th>Keterangan</th>
-                  <th style="width: 100px; text-align: center;">Peserta</th>
+                  <th>Delegasi PAC</th>
                   <th style="width: 110px; text-align: center;">Aksi</th>
                 </tr>
               </thead>
@@ -441,16 +445,18 @@ async function handleLogout() {
                     </span>
                   </td>
                   <td>
-                    <span class="badge badge-success">{{ item.pelaksana }}</span>
+                    <span class="badge badge-info">{{ item.pelaksana }}</span>
                   </td>
                   <td>
                     <span class="note-text">{{ item.keterangan || '-' }}</span>
                   </td>
-                  <td style="text-align: center;">
-                    <span v-if="item.jumlah_peserta" class="badge badge-info">
-                      {{ item.jumlah_peserta }} org
-                    </span>
-                    <span v-else class="text-dim">-</span>
+                  <td>
+                    <div class="delegasi-chip-group">
+                      <span class="badge badge-purple font-mono">
+                        <UserCheck :size="12" />
+                        {{ item.delegasi_pac || '-' }}
+                      </span>
+                    </div>
                   </td>
                   <td style="text-align: center;">
                     <div class="action-buttons">
@@ -482,7 +488,7 @@ async function handleLogout() {
     <div v-if="isModalOpen" class="modal-backdrop">
       <div class="modal-card white-card">
         <div class="modal-header">
-          <h3>{{ isEditMode ? 'Ubah Kegiatan Internal' : 'Tambah Kegiatan Internal' }}</h3>
+          <h3>{{ isEditMode ? 'Ubah Kegiatan Eksternal' : 'Tambah Kegiatan Eksternal' }}</h3>
           <button class="btn-close" @click="isModalOpen = false"><X :size="20" /></button>
         </div>
 
@@ -494,18 +500,17 @@ async function handleLogout() {
                 v-model="formData.tanggal"
                 type="text"
                 class="form-input"
-                placeholder="15/08/2026"
+                placeholder="14/04/2026"
                 required
               />
             </div>
             <div class="form-group flex-1">
-              <label class="form-label">Jumlah Peserta</label>
+              <label class="form-label">Delegasi PAC (Nama yang diutus)</label>
               <input
-                v-model="formData.jumlah_peserta"
-                type="number"
-                min="0"
+                v-model="formData.delegasi_pac"
+                type="text"
                 class="form-input"
-                placeholder="Contoh: 35"
+                placeholder="Contoh: Heri, Lintang"
               />
             </div>
           </div>
@@ -516,7 +521,7 @@ async function handleLogout() {
               v-model="formData.nama_kegiatan"
               type="text"
               class="form-input"
-              placeholder="Contoh: Rapat Harian & Koordinasi PAC"
+              placeholder="Contoh: Rapat Koordinasi LAKUT dan DIKLATMAD"
               required
             />
           </div>
@@ -528,29 +533,29 @@ async function handleLogout() {
                 v-model="formData.tempat"
                 type="text"
                 class="form-input"
-                placeholder="Gedung MWC NU Buaran"
+                placeholder="Gedung PC NU Kab Pekalongan"
                 required
               />
             </div>
             <div class="form-group flex-1">
-              <label class="form-label">Pelaksana</label>
+              <label class="form-label">Penyelenggara / Pelaksana</label>
               <input
                 v-model="formData.pelaksana"
                 type="text"
                 class="form-input"
-                placeholder="Pengurus Harian"
+                placeholder="PC IPNU Kab. Pekalongan"
               />
             </div>
           </div>
 
           <div class="form-group">
-            <label class="form-label">Keterangan / Catatan</label>
-            <textarea
+            <label class="form-label">Keterangan / Status</label>
+            <input
               v-model="formData.keterangan"
+              type="text"
               class="form-input"
-              rows="3"
-              placeholder="Catatan pembahasan atau agenda rapat..."
-            ></textarea>
+              placeholder="Contoh: Menghadiri / Pembicara / Undangan Terbatas"
+            />
           </div>
 
           <div class="modal-actions">
@@ -581,7 +586,7 @@ async function handleLogout() {
         <div class="delete-icon-box">
           <Trash2 :size="30" />
         </div>
-        <h3>Hapus Kegiatan?</h3>
+        <h3>Hapus Kegiatan Eksternal?</h3>
         <p>
           Anda akan menghapus kegiatan nomor <strong>{{ selectedItem?.no }}</strong>:
           <em>"{{ selectedItem?.nama_kegiatan }}"</em>. Tindakan ini akan menghapus baris terkait di Google Sheets.
@@ -1093,11 +1098,17 @@ async function handleLogout() {
 .note-text {
   color: var(--text-muted);
   font-size: 0.825rem;
-  max-width: 240px;
+  max-width: 200px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.delegasi-chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
 }
 
 .action-buttons {

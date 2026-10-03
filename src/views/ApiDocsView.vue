@@ -346,6 +346,124 @@ function copyText(text: string, id: string) {
           </div>
         </div>
       </article>
+
+      <!-- Endpoint 7: Kegiatan Eksternal List -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag get">GET / POST</div>
+          <div class="endpoint-path">
+            <code>?action=kegiatan_eksternal_list</code>
+          </div>
+          <span class="endpoint-desc">Ambil Seluruh Data Sheet kegiatan-eksternal</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Response Sukses (200 OK)</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "success": true,
+  "message": "Data kegiatan eksternal berhasil diambil.",
+  "data": [
+    {
+      "no": 1,
+      "tanggal": "14/04/2026",
+      "tempat": "Gedung PC NU Kab Pekalongan",
+      "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+      "pelaksana": "PC IPNU Kab. Pekalongan",
+      "keterangan": "Menghadiri",
+      "delegasi_pac": "Heri, Lintang",
+      "_rowNumber": 2
+    }
+  ]
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Endpoint 8: Kegiatan Eksternal Create -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag post">POST</div>
+          <div class="endpoint-path">
+            <code>?action=kegiatan_eksternal_create</code>
+          </div>
+          <span class="endpoint-desc">Tambah Baris Baru pada Sheet kegiatan-eksternal</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Request Body</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "tanggal": "14/04/2026",
+  "tempat": "Gedung PC NU Kab Pekalongan",
+  "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+  "pelaksana": "PC IPNU Kab. Pekalongan",
+  "keterangan": "Menghadiri",
+  "delegasi_pac": "Heri, Lintang"
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-section">
+            <h4>Response Sukses (200 OK)</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "success": true,
+  "message": "Kegiatan eksternal berhasil ditambahkan.",
+  "data": {
+    "no": 2,
+    "tanggal": "14/04/2026",
+    "tempat": "Gedung PC NU Kab Pekalongan",
+    "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+    "pelaksana": "PC IPNU Kab. Pekalongan",
+    "keterangan": "Menghadiri",
+    "delegasi_pac": "Heri, Lintang"
+  }
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Endpoint 9: Kegiatan Eksternal Update & Delete -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag post">POST</div>
+          <div class="endpoint-path">
+            <code>?action=kegiatan_eksternal_update &bull; ?action=kegiatan_eksternal_delete</code>
+          </div>
+          <span class="endpoint-desc">Ubah / Hapus Data Kegiatan Eksternal Berdasarkan Kolom No</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Update Payload</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "no": 1,
+  "tanggal": "14/04/2026",
+  "tempat": "Gedung PC NU Kab Pekalongan",
+  "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD (Revisi)",
+  "pelaksana": "PC IPNU Kab. Pekalongan",
+  "keterangan": "Menghadiri",
+  "delegasi_pac": "Heri, Lintang, M. Ikrom"
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-section">
+            <h4>Delete Payload</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "no": 1
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
     </main>
   </div>
 </template>

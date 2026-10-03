@@ -94,6 +94,16 @@ Aplikasi backend menggunakan dua sheet utama pada Google Spreadsheet:
 | Kolom 6 | `Keterangan` | String | Catatan atau deskripsi kegiatan |
 | Kolom 7 | `Jumlah Peserta`| Number / String | Estimasi / realisasi jumlah peserta hadir |
 
+### 3.4 Sheet `kegiatan-eksternal`
+| Index / Kolom | Field Name | Data Type | Keterangan |
+|---|---|---|---|
+| Kolom 1 | `No` | Number | Nomor urut kegiatan (Auto-increment / ID) |
+| Kolom 2 | `Tanggal` | String / Date | Format tanggal kegiatan: `DD/MM/YYYY` |
+| Kolom 3 | `Tempat` | String | Lokasi pelaksanaan kegiatan |
+| Kolom 4 | `Nama Kegiatan` | String | Judul kegiatan yang diselenggarakan pihak luar |
+| Kolom 5 | `Pelaksana` | String | Instansi / organisasi penyelenggara eksternal (contoh: `PC IPNU Kab. Pekalongan`) |
+| Kolom 6 | `Keterangan` | String | Catatan kegiatan / delegasi (contoh: `Menghadiri`) |
+| Kolom 7 | `Delegasi PAC` | String | Nama pengurus PAC yang diutus hadir (contoh: `Heri, Lintang`) |
 
 ---
 
@@ -371,6 +381,133 @@ Menghapus baris kegiatan dari spreadsheet berdasarkan `no`.
 {
   "success": true,
   "message": "Kegiatan internal nomor 1 berhasil dihapus.",
+  "data": null
+}
+```
+
+---
+
+### Endpoint 8: List Kegiatan Eksternal
+Mengambil daftar seluruh agenda kegiatan eksternal dari sheet `kegiatan-eksternal`.
+
+- **Method:** `GET` atau `POST`
+- **Query Parameter:** `action=kegiatan_eksternal_list`
+- **Headers:** `Content-Type: text/plain;charset=utf-8`
+
+#### Response Sukses (200 OK)
+```json
+{
+  "success": true,
+  "message": "Data kegiatan eksternal berhasil diambil.",
+  "data": [
+    {
+      "no": 1,
+      "tanggal": "14/04/2026",
+      "tempat": "Gedung PC NU Kab Pekalongan",
+      "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+      "pelaksana": "PC IPNU Kab. Pekalongan",
+      "keterangan": "Menghadiri",
+      "delegasi_pac": "Heri, Lintang"
+    }
+  ]
+}
+```
+
+---
+
+### Endpoint 9: Tambah Kegiatan Eksternal (Create)
+Menambahkan kegiatan eksternal baru ke dalam sheet `kegiatan-eksternal`. Nomor urut (`no`) digenerate otomatis.
+
+- **Method:** `POST`
+- **Query Parameter:** `action=kegiatan_eksternal_create`
+- **Headers:** `Content-Type: text/plain;charset=utf-8`
+- **Request Body (JSON string):**
+```json
+{
+  "tanggal": "14/04/2026",
+  "tempat": "Gedung PC NU Kab Pekalongan",
+  "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+  "pelaksana": "PC IPNU Kab. Pekalongan",
+  "keterangan": "Menghadiri",
+  "delegasi_pac": "Heri, Lintang"
+}
+```
+
+#### Response Sukses (200 OK)
+```json
+{
+  "success": true,
+  "message": "Kegiatan eksternal berhasil ditambahkan.",
+  "data": {
+    "no": 1,
+    "tanggal": "14/04/2026",
+    "tempat": "Gedung PC NU Kab Pekalongan",
+    "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD",
+    "pelaksana": "PC IPNU Kab. Pekalongan",
+    "keterangan": "Menghadiri",
+    "delegasi_pac": "Heri, Lintang"
+  }
+}
+```
+
+---
+
+### Endpoint 10: Ubah Kegiatan Eksternal (Update)
+Memperbarui baris kegiatan eksternal berdasarkan `no`.
+
+- **Method:** `POST`
+- **Query Parameter:** `action=kegiatan_eksternal_update`
+- **Headers:** `Content-Type: text/plain;charset=utf-8`
+- **Request Body (JSON string):**
+```json
+{
+  "no": 1,
+  "tanggal": "14/04/2026",
+  "tempat": "Gedung PC NU Kab Pekalongan",
+  "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD (Revisi)",
+  "pelaksana": "PC IPNU Kab. Pekalongan",
+  "keterangan": "Menghadiri",
+  "delegasi_pac": "Heri, Lintang, M. Ikrom"
+}
+```
+
+#### Response Sukses (200 OK)
+```json
+{
+  "success": true,
+  "message": "Kegiatan eksternal berhasil diperbarui.",
+  "data": {
+    "no": 1,
+    "tanggal": "14/04/2026",
+    "tempat": "Gedung PC NU Kab Pekalongan",
+    "nama_kegiatan": "Rapat Koordinasi LAKUT dan DIKLATMAD (Revisi)",
+    "pelaksana": "PC IPNU Kab. Pekalongan",
+    "keterangan": "Menghadiri",
+    "delegasi_pac": "Heri, Lintang, M. Ikrom"
+  }
+}
+```
+
+---
+
+### Endpoint 11: Hapus Kegiatan Eksternal (Delete)
+Menghapus baris kegiatan eksternal berdasarkan `no`.
+
+- **Method:** `POST`
+- **Query Parameter:** `action=kegiatan_eksternal_delete`
+- **Headers:** `Content-Type: text/plain;charset=utf-8`
+- **Request Body (JSON string):**
+```json
+{
+  "no": 1
+}
+```
+
+#### Response Sukses (200 OK)
+```json
+{
+  "success": true,
+  "message": "Kegiatan eksternal nomor 1 berhasil dihapus.",
   "data": null
 }
 ```

@@ -34,6 +34,15 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/kegiatan-eksternal',
+    name: 'KegiatanEksternal',
+    component: () => import('@/views/KegiatanEksternalView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Kegiatan Eksternal - ADM PAC Buaran',
+    },
+  },
+  {
     path: '/api-docs',
     name: 'ApiDocs',
     component: () => import('@/views/ApiDocsView.vue'),

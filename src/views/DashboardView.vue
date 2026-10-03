@@ -3,9 +3,11 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useKegiatanStore } from '@/stores/kegiatan'
+import { useKegiatanEksternalStore } from '@/stores/kegiatanEksternal'
 import {
   LayoutDashboard,
   Calendar,
+  Compass,
   Users,
   FileText,
   DollarSign,
@@ -32,6 +34,7 @@ import {
 const router = useRouter()
 const authStore = useAuthStore()
 const kegiatanStore = useKegiatanStore()
+const kegiatanEksternalStore = useKegiatanEksternalStore()
 
 const tokenCopied = ref(false)
 const selectedMonth = ref('Bulan Ini')
@@ -42,9 +45,12 @@ const gasDeploymentId = import.meta.env.VITE_GAS_DEPLOYMENT_ID || ''
 
 onMounted(async () => {
   try {
-    await kegiatanStore.fetchItems()
+    await Promise.all([
+      kegiatanStore.fetchItems(),
+      kegiatanEksternalStore.fetchItems(),
+    ])
   } catch (err) {
-    console.error('Error fetching kegiatan:', err)
+    console.error('Error fetching data:', err)
   }
 })
 
@@ -114,6 +120,11 @@ const recentKegiatan = computed(() => {
             <Calendar :size="18" />
             <span>Kegiatan Internal</span>
             <span class="item-badge" v-if="kegiatanStore.totalKegiatan">{{ kegiatanStore.totalKegiatan }}</span>
+          </RouterLink>
+          <RouterLink to="/kegiatan-eksternal" class="menu-item">
+            <Compass :size="18" />
+            <span>Kegiatan Eksternal</span>
+            <span class="item-badge" v-if="kegiatanEksternalStore.totalKegiatan">{{ kegiatanEksternalStore.totalKegiatan }}</span>
           </RouterLink>
         </div>
 
@@ -355,6 +366,31 @@ const recentKegiatan = computed(() => {
               </div>
               <div class="card-footer">
                 <span>Pengurus & Formatur</span>
+              </div>
+            </div>
+
+            <!-- Card 5: Pastel Amber (Kegiatan Eksternal) -->
+            <div class="pastel-card amber">
+              <div class="card-top">
+                <div class="icon-circle amber">
+                  <Compass :size="16" />
+                </div>
+                <button class="more-btn" @click="router.push('/kegiatan-eksternal')" title="Buka Kegiatan Eksternal">
+                  <ExternalLink :size="16" />
+                </button>
+              </div>
+              <span class="card-category">Kegiatan Eksternal</span>
+              <div class="card-middle">
+                <div class="card-value">{{ kegiatanEksternalStore.totalKegiatan }}</div>
+                <div class="sparkline-bars">
+                  <span class="bar h-40"></span>
+                  <span class="bar h-65"></span>
+                  <span class="bar h-85 dark"></span>
+                  <span class="bar h-55"></span>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span>Delegasi PAC Buaran</span>
               </div>
             </div>
           </div>
@@ -1103,6 +1139,11 @@ const recentKegiatan = computed(() => {
   color: var(--pastel-purple-text);
 }
 
+.pastel-card.amber {
+  background-color: var(--pastel-amber-bg);
+  color: var(--pastel-amber-text);
+}
+
 .card-top {
   display: flex;
   align-items: center;
@@ -1122,6 +1163,7 @@ const recentKegiatan = computed(() => {
 .icon-circle.teal { background: var(--pastel-teal-accent); color: var(--pastel-teal-text); }
 .icon-circle.pink { background: var(--pastel-pink-accent); color: var(--pastel-pink-text); }
 .icon-circle.purple { background: var(--pastel-purple-accent); color: var(--pastel-purple-text); }
+.icon-circle.amber { background: var(--pastel-amber-accent); color: var(--pastel-amber-text); }
 
 .more-btn {
   background: transparent;
