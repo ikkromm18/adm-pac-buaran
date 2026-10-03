@@ -26,8 +26,28 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const previewRoleOverride = ref<string | null>(localStorage.getItem('adm_pac_role_preview'))
+
+  function setPreviewRole(role: string | null) {
+    previewRoleOverride.value = role
+    if (role) {
+      localStorage.setItem('adm_pac_role_preview', role)
+    } else {
+      localStorage.removeItem('adm_pac_role_preview')
+    }
+  }
+
+  const effectiveRole = computed(() => {
+    if (previewRoleOverride.value) return previewRoleOverride.value
+    return user.value?.role || 'admin'
+  })
+
   const isAuthenticated = computed(() => !!token.value && !!user.value)
-  const userRole = computed(() => user.value?.role || 'guest')
+  const userRole = computed(() => effectiveRole.value)
+  const isSuperAdmin = computed(() => {
+    const role = (effectiveRole.value || '').toLowerCase().trim()
+    return role === 'superadmin' || role === 'super_admin'
+  })
   const userFullName = computed(() => user.value?.full_name || user.value?.username || 'Pengguna')
 
   /**
@@ -129,6 +149,9 @@ export const useAuthStore = defineStore('auth', () => {
     isInitialized,
     isAuthenticated,
     userRole,
+    isSuperAdmin,
+    previewRoleOverride,
+    setPreviewRole,
     userFullName,
     login,
     logout,

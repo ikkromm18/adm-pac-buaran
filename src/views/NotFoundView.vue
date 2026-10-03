@@ -7,16 +7,16 @@ const router = useRouter()
 
 <template>
   <div class="not-found-wrapper">
-    <div class="not-found-card glass-panel">
+    <div class="not-found-card white-card">
       <div class="icon-circle">
-        <AlertTriangle :size="40" />
+        <AlertTriangle :size="36" />
       </div>
       <h1>404</h1>
       <h2>Halaman Tidak Ditemukan</h2>
-      <p>Halaman yang Anda tuju tidak tersedia atau telah dipindahkan.</p>
-      <button class="btn btn-primary" @click="router.push('/')">
-        <Home :size="18" />
-        <span>Kembali ke Beranda</span>
+      <p>Halaman yang Anda tuju tidak tersedia atau Anda tidak memiliki hak akses.</p>
+      <button class="btn btn-primary" @click="router.push('/dashboard')">
+        <Home :size="16" />
+        <span>Kembali ke Dashboard</span>
       </button>
     </div>
   </div>
@@ -29,13 +29,13 @@ const router = useRouter()
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background-color: var(--bg-main);
+  background-color: var(--bg-canvas);
 }
 
 .not-found-card {
   max-width: 440px;
   width: 100%;
-  padding: 2.5rem 2rem;
+  padding: 2.75rem 2rem;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -44,32 +44,31 @@ const router = useRouter()
 }
 
 .icon-circle {
-  width: 72px;
-  height: 72px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: var(--accent-amber);
+  background: #fef3c7;
+  color: #b45309;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: 3.25rem;
   font-weight: 800;
-  color: var(--text-main);
+  color: var(--primary-dark);
   line-height: 1;
 }
 
 h2 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-main);
 }
 
 p {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: var(--text-muted);
 }
 </style>

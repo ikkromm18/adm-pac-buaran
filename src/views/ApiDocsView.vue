@@ -8,13 +8,14 @@ import {
   Copy,
   Check,
   AlertTriangle,
+  ShieldCheck,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const copiedIndex = ref<string | null>(null)
 
-const gasApiUrl = import.meta.env.VITE_GAS_API_URL || 'https://script.google.com/macros/s/.../dev'
-const gasDeploymentId = import.meta.env.VITE_GAS_DEPLOYMENT_ID || 'AKfycbxMdrB-lsAMOFU4qdVg7ZTs88gPI8vGck-C9Y41zDx6'
+const gasApiUrl = import.meta.env.VITE_GAS_API_URL || 'https://script.google.com/macros/s/.../exec'
+const gasDeploymentId = import.meta.env.VITE_GAS_DEPLOYMENT_ID || 'AKfycb...'
 
 function copyText(text: string, id: string) {
   navigator.clipboard.writeText(text)
@@ -27,25 +28,28 @@ function copyText(text: string, id: string) {
 
 <template>
   <div class="docs-page">
-    <header class="top-nav glass-panel">
+    <header class="top-nav white-card">
       <div class="nav-content">
-        <button class="btn btn-secondary btn-sm" @click="router.back()">
+        <button class="btn btn-secondary btn-sm" @click="router.push('/dashboard')">
           <ArrowLeft :size="16" />
-          <span>Kembali</span>
+          <span>Kembali ke Dashboard</span>
         </button>
         <div class="header-title">
           <BookOpen :size="20" class="text-primary" />
           <h2>Dokumentasi API Google Apps Script</h2>
         </div>
         <div class="header-badge">
-          <span class="badge badge-success">v1.0.0</span>
+          <span class="badge badge-purple">
+            <ShieldCheck :size="13" />
+            Superadmin Access
+          </span>
         </div>
       </div>
     </header>
 
     <main class="docs-container">
       <!-- Info Banner -->
-      <section class="info-banner glass-panel">
+      <section class="info-banner white-card">
         <div class="banner-icon">
           <Terminal :size="28" />
         </div>
@@ -53,8 +57,7 @@ function copyText(text: string, id: string) {
           <h3>Dokumentasi Teknis Backend Serverless</h3>
           <p>
             Dokumentasi ini disinkronkan dengan file <code>PRD.md</code> di root direktori project.
-            Setiap ada penambahan router di <code>Code.gs</code> atau service di Apps Script,
-            catat pembaruannya di <code>PRD.md</code> dan sesuaikan endpoint di bawah ini.
+            Halaman ini khusus untuk peran <strong>Superadmin</strong> untuk memonitor routing dan struktur JSON Google Apps Script.
           </p>
           <div class="env-badges">
             <span class="badge badge-info">Base URL: {{ gasApiUrl }}</span>
@@ -76,7 +79,7 @@ function copyText(text: string, id: string) {
       </section>
 
       <!-- Endpoint 1: Login -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST</div>
           <div class="endpoint-path">
@@ -133,7 +136,7 @@ function copyText(text: string, id: string) {
       </article>
 
       <!-- Endpoint 2: Current User (me) -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST</div>
           <div class="endpoint-path">
@@ -188,7 +191,7 @@ function copyText(text: string, id: string) {
       </article>
 
       <!-- Endpoint 3: Logout -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST</div>
           <div class="endpoint-path">
@@ -221,7 +224,7 @@ function copyText(text: string, id: string) {
       </article>
 
       <!-- Endpoint 4: Kegiatan Internal List -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST / GET</div>
           <div class="endpoint-path">
@@ -262,7 +265,7 @@ function copyText(text: string, id: string) {
       </article>
 
       <!-- Endpoint 5: Kegiatan Internal Create -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST</div>
           <div class="endpoint-path">
@@ -308,7 +311,7 @@ function copyText(text: string, id: string) {
       </article>
 
       <!-- Endpoint 6: Kegiatan Internal Update & Delete -->
-      <article class="endpoint-card glass-panel">
+      <article class="endpoint-card white-card">
         <div class="endpoint-header">
           <div class="method-tag post">POST</div>
           <div class="endpoint-path">
@@ -350,7 +353,7 @@ function copyText(text: string, id: string) {
 <style scoped>
 .docs-page {
   min-height: 100vh;
-  background-color: var(--bg-main);
+  background-color: var(--bg-canvas);
   padding-bottom: 3rem;
 }
 
@@ -362,9 +365,8 @@ function copyText(text: string, id: string) {
   border-left: none;
   border-right: none;
   border-top: none;
-  border-bottom: 1px solid var(--border-subtle);
-  background: rgba(11, 17, 32, 0.9);
-  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  background: #ffffff;
 }
 
 .nav-content {
@@ -384,10 +386,11 @@ function copyText(text: string, id: string) {
 
 .header-title h2 {
   font-size: 1.15rem;
+  color: var(--primary-dark);
 }
 
 .text-primary {
-  color: var(--primary-400);
+  color: var(--primary-dark);
 }
 
 .docs-container {
@@ -404,15 +407,14 @@ function copyText(text: string, id: string) {
   display: flex;
   align-items: flex-start;
   gap: 1.25rem;
-  border-color: rgba(16, 185, 129, 0.2);
 }
 
 .banner-icon {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: var(--radius-md);
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--primary-400);
+  background: #e2f4f2;
+  color: var(--primary-dark);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -420,12 +422,13 @@ function copyText(text: string, id: string) {
 }
 
 .banner-body h3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+  color: var(--primary-dark);
   margin-bottom: 0.35rem;
 }
 
 .banner-body p {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin-bottom: 0.75rem;
 }
 
@@ -437,7 +440,6 @@ function copyText(text: string, id: string) {
 
 .endpoint-card {
   padding: 1.75rem;
-  border: 1px solid var(--border-subtle);
 }
 
 .endpoint-header {
@@ -447,32 +449,32 @@ function copyText(text: string, id: string) {
   flex-wrap: wrap;
   padding-bottom: 1rem;
   margin-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .method-tag {
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   padding: 0.25rem 0.6rem;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
 }
 
 .method-tag.post {
-  background: rgba(56, 189, 248, 0.15);
-  color: var(--accent-blue);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
 }
 
 .endpoint-path code {
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--primary-300);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-dark);
 }
 
 .endpoint-desc {
   color: var(--text-muted);
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   margin-left: auto;
 }
 
@@ -483,14 +485,14 @@ function copyText(text: string, id: string) {
 }
 
 .doc-section h4 {
-  font-size: 0.875rem;
+  font-size: 0.825rem;
   color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .code-block-wrapper {
   position: relative;
-  background: #060913;
+  background: #081d1c;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
   padding: 1rem;
@@ -501,10 +503,10 @@ function copyText(text: string, id: string) {
   position: absolute;
   top: 0.65rem;
   right: 0.65rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-muted);
-  padding: 0.25rem 0.4rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  padding: 0.25rem 0.45rem;
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -512,15 +514,14 @@ function copyText(text: string, id: string) {
 }
 
 .btn-code-copy:hover {
-  color: var(--text-main);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .code-block-wrapper pre {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.825rem;
-  color: #e2e8f0;
+  font-size: 0.8rem;
+  color: #d1fae5;
   line-height: 1.5;
 }
 </style>

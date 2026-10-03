@@ -2,7 +2,7 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Lock, User, Eye, EyeOff, ShieldCheck, ArrowRight, BookOpen, AlertCircle } from 'lucide-vue-next'
+import { Lock, User, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle } from 'lucide-vue-next'
 
 const router = useRouter()
 const route = useRoute()
@@ -50,17 +50,16 @@ async function handleLogin() {
 
 <template>
   <div class="login-wrapper">
-    <!-- Ambient glowing backdrop effect -->
-    <div class="ambient-glow glow-1"></div>
-    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-shape shape-1"></div>
+    <div class="ambient-shape shape-2"></div>
 
-    <div class="login-card glass-panel">
+    <div class="login-card white-card">
       <!-- Header Branding -->
       <div class="brand-header">
         <div class="brand-logo-icon">
-          <ShieldCheck :size="32" class="icon-brand" />
+          <Sparkles :size="28" class="icon-brand" />
         </div>
-        <h1 class="brand-title">ADM PAC BUARAN</h1>
+        <h1 class="brand-title">PAC BUARAN</h1>
         <p class="brand-subtitle">Portal Administrasi Terpadu</p>
       </div>
 
@@ -109,7 +108,7 @@ async function handleLogin() {
               type="button"
               class="btn-icon-action"
               @click="showPassword = !showPassword"
-              title="Toggle password"
+              title="Lihat password"
             >
               <EyeOff v-if="showPassword" :size="18" />
               <Eye v-else :size="18" />
@@ -130,10 +129,10 @@ async function handleLogin() {
         </button>
       </form>
 
-      <!-- Demo Credentials Helper -->
+      <!-- Default Credentials Helper -->
       <div class="credentials-helper">
         <div class="helper-header">
-          <span>Kredensial Default (Backend GAS):</span>
+          <span>Kredensial Default:</span>
         </div>
         <div class="helper-content">
           <code>ikrom.admin</code> / <code>admin123</code>
@@ -145,14 +144,6 @@ async function handleLogin() {
             Gunakan
           </button>
         </div>
-      </div>
-
-      <!-- Footer Info -->
-      <div class="card-footer">
-        <RouterLink to="/api-docs" class="footer-link">
-          <BookOpen :size="15" />
-          <span>Lihat Dokumentasi API GAS</span>
-        </RouterLink>
       </div>
     </div>
   </div>
@@ -168,38 +159,39 @@ async function handleLogin() {
   justify-content: center;
   padding: 1.5rem;
   overflow: hidden;
-  background: radial-gradient(circle at 50% 20%, #132238 0%, #0b1120 70%);
+  background-color: var(--bg-canvas);
 }
 
-.ambient-glow {
+.ambient-shape {
   position: absolute;
-  width: 450px;
-  height: 450px;
+  width: 480px;
+  height: 480px;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(100px);
   pointer-events: none;
-  opacity: 0.15;
+  opacity: 0.5;
 }
 
-.glow-1 {
-  top: -100px;
-  left: 20%;
-  background: #10b981;
+.shape-1 {
+  top: -120px;
+  left: 10%;
+  background: var(--pastel-teal-bg);
 }
 
-.glow-2 {
-  bottom: -100px;
-  right: 20%;
-  background: #047857;
+.shape-2 {
+  bottom: -120px;
+  right: 15%;
+  background: var(--pastel-lime-bg);
 }
 
 .login-card {
   position: relative;
   width: 100%;
-  max-width: 440px;
-  padding: 2.5rem 2.25rem;
+  max-width: 420px;
+  padding: 2.75rem 2.25rem;
   z-index: 10;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.1);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 40px -10px rgba(9, 44, 43, 0.08);
 }
 
 .brand-header {
@@ -208,32 +200,28 @@ async function handleLogin() {
 }
 
 .brand-logo-icon {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   margin: 0 auto 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.05) 100%);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-glow);
-}
-
-.icon-brand {
-  color: var(--primary-400);
+  background: var(--primary-dark);
+  color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(9, 44, 43, 0.25);
 }
 
 .brand-title {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  color: var(--text-main);
+  letter-spacing: 0.04em;
+  color: var(--primary-dark);
   margin-bottom: 0.25rem;
 }
 
 .brand-subtitle {
-  font-size: 0.875rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
 }
 
@@ -269,8 +257,6 @@ async function handleLogin() {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: color 0.2s;
 }
 
 .btn-icon-action:hover {
@@ -279,9 +265,9 @@ async function handleLogin() {
 
 .submit-btn {
   width: 100%;
-  margin-top: 1rem;
-  padding: 0.875rem;
-  font-size: 1rem;
+  margin-top: 1.25rem;
+  padding: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .btn-text-content {
@@ -294,15 +280,15 @@ async function handleLogin() {
 .credentials-helper {
   margin-top: 1.5rem;
   padding: 0.85rem 1rem;
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
+  background: #f8fbfa;
+  border: 1px dashed rgba(9, 44, 43, 0.15);
   border-radius: var(--radius-md);
   font-size: 0.8rem;
 }
 
 .helper-header {
   color: var(--text-dim);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
 }
 
 .helper-content {
@@ -312,19 +298,19 @@ async function handleLogin() {
 }
 
 .helper-content code {
-  color: var(--primary-300);
-  background: rgba(16, 185, 129, 0.1);
-  padding: 0.15rem 0.4rem;
+  color: var(--primary-accent);
+  background: #e6f4f2;
+  padding: 0.15rem 0.45rem;
   border-radius: 4px;
 }
 
 .btn-quick-fill {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--primary-400);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  padding: 0.2rem 0.5rem;
+  background: var(--primary-dark);
+  color: #ffffff;
+  border: none;
+  padding: 0.25rem 0.6rem;
   font-size: 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   font-family: inherit;
   font-weight: 600;
@@ -332,27 +318,7 @@ async function handleLogin() {
 }
 
 .btn-quick-fill:hover {
-  background: rgba(16, 185, 129, 0.25);
-  color: var(--text-main);
-}
-
-.card-footer {
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-subtle);
-  text-align: center;
-}
-
-.footer-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.825rem;
-  color: var(--text-dim);
-}
-
-.footer-link:hover {
-  color: var(--primary-400);
+  background: var(--primary-dark-hover);
 }
 
 .flex-shrink-0 {

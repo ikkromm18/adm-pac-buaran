@@ -38,7 +38,8 @@ const routes: RouteRecordRaw[] = [
     name: 'ApiDocs',
     component: () => import('@/views/ApiDocsView.vue'),
     meta: {
-      requiresAuth: false,
+      requiresAuth: true,
+      requiresSuperAdmin: true,
       title: 'Dokumentasi API - ADM PAC Buaran',
     },
   },
@@ -84,6 +85,11 @@ router.beforeEach(async (to, _from, next) => {
 
   // Cek jika route khusus guest (seperti login) tapi user sudah authenticated
   if (to.meta.guestOnly && authStore.isAuthenticated) {
+    return next({ name: 'Dashboard' })
+  }
+
+  // Cek jika route khusus superadmin tapi role user bukan superadmin
+  if (to.meta.requiresSuperAdmin && !authStore.isSuperAdmin) {
     return next({ name: 'Dashboard' })
   }
 
