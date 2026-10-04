@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useKegiatanStore } from '@/stores/kegiatan'
 import { useKegiatanEksternalStore } from '@/stores/kegiatanEksternal'
 import { useSuratMasukStore } from '@/stores/suratMasuk'
+import logoPacBuaran from '@/assets/logopacbuaran.webp'
 import {
   LayoutDashboard,
   Calendar,
@@ -116,7 +117,7 @@ const recentKegiatan = computed(() => {
       </button>
       <div class="mobile-brand">
         <div class="logo-box-sm">
-          <Sparkles :size="16" />
+          <img :src="logoPacBuaran" alt="Logo PAC Buaran" class="logo-img-sm" />
         </div>
         <span class="mobile-brand-title">PAC Buaran</span>
       </div>
@@ -138,7 +139,7 @@ const recentKegiatan = computed(() => {
     <aside class="sidebar" :class="{ 'drawer-open': isMobileMenuOpen }">
       <div class="sidebar-header">
         <div class="logo-box">
-          <Sparkles :size="20" class="logo-icon" />
+          <img :src="logoPacBuaran" alt="Logo PAC Buaran" class="logo-img" />
         </div>
         <div class="logo-text">
           <h2>PAC Buaran</h2>
@@ -872,15 +873,24 @@ const recentKegiatan = computed(() => {
 }
 
 .logo-box {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  background: var(--primary-dark);
-  color: #ffffff;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(9, 44, 43, 0.25);
+  box-shadow: 0 4px 12px rgba(9, 44, 43, 0.12);
+  border: 1.5px solid var(--border-soft);
+  flex-shrink: 0;
+  padding: 2px;
+}
+
+.logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
 }
 
 .logo-text h2 {
@@ -1830,11 +1840,21 @@ const recentKegiatan = computed(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: var(--primary-dark);
-  color: #ffffff;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 2px 6px rgba(9, 44, 43, 0.12);
+  border: 1.5px solid var(--border-soft);
+  flex-shrink: 0;
+  padding: 1px;
+}
+
+.logo-img-sm {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
 }
 
 .mobile-brand-title {

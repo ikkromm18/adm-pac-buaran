@@ -2,7 +2,8 @@
 import { ref, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { Lock, User, Eye, EyeOff, Sparkles, ArrowRight, AlertCircle } from 'lucide-vue-next'
+import { Lock, User, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-vue-next'
+import logoPacBuaran from '@/assets/logopacbuaran.webp'
 
 const router = useRouter()
 const route = useRoute()
@@ -15,12 +16,6 @@ const form = reactive({
 
 const showPassword = ref(false)
 const localError = ref<string | null>(null)
-
-function quickFill(user: string, pass: string) {
-  form.username = user
-  form.password = pass
-  localError.value = null
-}
 
 async function handleLogin() {
   localError.value = null
@@ -56,8 +51,8 @@ async function handleLogin() {
     <div class="login-card white-card">
       <!-- Header Branding -->
       <div class="brand-header">
-        <div class="brand-logo-icon">
-          <Sparkles :size="28" class="icon-brand" />
+        <div class="brand-logo-container">
+          <img :src="logoPacBuaran" alt="Logo PAC Buaran" class="brand-logo-img" />
         </div>
         <h1 class="brand-title">PAC BUARAN</h1>
         <p class="brand-subtitle">Portal Administrasi Terpadu</p>
@@ -128,23 +123,7 @@ async function handleLogin() {
           </span>
         </button>
       </form>
-
-      <!-- Default Credentials Helper -->
-      <div class="credentials-helper">
-        <div class="helper-header">
-          <span>Kredensial Default:</span>
-        </div>
-        <div class="helper-content">
-          <code>ikrom.admin</code> / <code>admin123</code>
-          <button
-            type="button"
-            class="btn-quick-fill"
-            @click="quickFill('ikrom.admin', 'admin123')"
-          >
-            Gunakan
-          </button>
-        </div>
-      </div>
+    
     </div>
   </div>
 </template>
@@ -199,17 +178,25 @@ async function handleLogin() {
   margin-bottom: 2rem;
 }
 
-.brand-logo-icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 1rem;
+.brand-logo-container {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 1.15rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-dark);
-  color: #ffffff;
+  background: #ffffff;
   border-radius: 50%;
-  box-shadow: 0 8px 18px rgba(9, 44, 43, 0.25);
+  padding: 4px;
+  box-shadow: 0 8px 22px rgba(9, 44, 43, 0.12);
+  border: 2px solid var(--border-soft);
+}
+
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
 }
 
 .brand-title {
