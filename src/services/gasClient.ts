@@ -44,12 +44,23 @@ export async function gasRequest<T>(config: RequestConfig): Promise<ApiResponse<
 
   const { action, method = 'POST', params = {}, body = {}, timeoutMs = 30000 } = config
 
+  // Ambil session token aktif dari storage jika ada
+  const token =
+    typeof window !== 'undefined'
+      ? localStorage.getItem('adm_pac_buaran_session_token')
+      : null
+
   // Buat query parameters
   const queryParams = new URLSearchParams()
   queryParams.set('action', action)
 
   for (const [key, val] of Object.entries(params)) {
     queryParams.set(key, String(val))
+  }
+
+  // Jika method GET dan ada token, lampirkan ke query params (kecuali action login)
+  if (method === 'GET' && token && !queryParams.has('session_token') && action !== 'login') {
+    queryParams.set('session_token', token)
   }
 
   const url = `${BASE_URL}?${queryParams.toString()}`
@@ -70,7 +81,14 @@ export async function gasRequest<T>(config: RequestConfig): Promise<ApiResponse<
       fetchOptions.headers = {
         'Content-Type': 'text/plain;charset=utf-8',
       }
-      fetchOptions.body = JSON.stringify(body)
+
+      // Otomatis lampirkan session_token dari storage jika tersedia dan belum ada di body (kecuali aksi login)
+      const payload: Record<string, unknown> = { ...body }
+      if (token && !payload.session_token && action !== 'login') {
+        payload.session_token = token
+      }
+
+      fetchOptions.body = JSON.stringify(payload)
     }
 
     const response = await fetch(url, fetchOptions)

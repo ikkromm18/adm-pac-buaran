@@ -66,14 +66,14 @@ function copyText(text: string, id: string) {
         </div>
       </section>
 
-      <!-- Senior Note on CORS -->
+      <!-- Senior Note on CORS & Security -->
       <section class="alert alert-info">
         <AlertTriangle :size="20" class="flex-shrink-0" />
         <div>
-          <strong>Aturan Wajib CORS di Google Apps Script:</strong>
+          <strong>Arsitektur Keamanan & CORS di Google Apps Script:</strong>
           <p style="margin-top: 0.25rem;">
-            Selalu kirim request <code>POST</code> dengan header <code>Content-Type: text/plain;charset=utf-8</code>.
-            Jika menggunakan <code>application/json</code>, browser akan mengirim preflight <code>OPTIONS</code> yang tidak didukung oleh GAS dan memicu error CORS.
+            1. <strong>CORS Bypass:</strong> Selalu kirim request <code>POST</code> dengan header <code>Content-Type: text/plain;charset=utf-8</code> untuk menghindari preflight <code>OPTIONS</code> yang tidak didukung oleh GAS.<br>
+            2. <strong>Auto Auth Interceptor:</strong> Klien front-end (<code>gasClient.ts</code>) otomatis menyisipkan <code>session_token</code> aktif dari storage ke seluruh request data (CRUD). Seluruh endpoint CRUD di Google Apps Script dilindungi oleh gateway <code>requireAuth_()</code>.
           </p>
         </div>
       </section>

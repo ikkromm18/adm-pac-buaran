@@ -55,28 +55,29 @@ Buka file **`Code.gs`** di Apps Script Editor, cari fungsi `handleRequest_(e)` p
 
 ```javascript
       // ==========================================
-      // ROUTER CRUD: SURAT MASUK (TAMBAHKAN INI)
+      // ROUTER CRUD: SURAT MASUK (TERPROTEKSI AUTH)
       // ==========================================
       case 'surat_masuk_list':
-
+        requireAuth_(e);
         return jsonResponse_(
           getSuratMasukList_(e)
         );
 
       case 'surat_masuk_create':
-
+        requireAuth_(e);
         return jsonResponse_(
           createSuratMasuk_(e)
         );
 
       case 'surat_masuk_update':
-
+        requireAuth_(e);
         return jsonResponse_(
           updateSuratMasuk_(e)
         );
 
       case 'surat_masuk_delete':
-
+        // Operasi hapus hanya untuk Admin dan Superadmin
+        requireAuth_(e, ['admin', 'superadmin']);
         return jsonResponse_(
           deleteSuratMasuk_(e)
         );
@@ -201,7 +202,11 @@ function getSuratMasukList_(e) {
  * }
  */
 function createSuratMasuk_(e) {
+  // Pasang LockService untuk mencegah nomor urut (No) ganda saat input bersamaan
+  const lock = LockService.getScriptLock();
   try {
+    lock.waitLock(10000); // Tunggu antrean maksimal 10 detik
+
     const body = parseRequestBody_(e);
 
     const jenisPengarsipan = String(body.jenis_pengarsipan || '').trim();
@@ -260,6 +265,8 @@ function createSuratMasuk_(e) {
   } catch (error) {
     console.error('Error in createSuratMasuk_:', error);
     return responseError_('Gagal menambah surat masuk: ' + error.message, 500);
+  } finally {
+    lock.releaseLock();
   }
 }
 
