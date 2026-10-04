@@ -212,6 +212,163 @@ function checkRateLimit_(identifier, maxRequests, windowSeconds) {
 
   cache.put(key, String(current + 1), windowSeconds || 60);
 }
+
+/**
+ * Helper Hash Password SHA-256 (Digunakan untuk verifikasi password user)
+ */
+function hashPassword_(password) {
+  const rawHash = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    password,
+    Utilities.Charset.UTF_8
+  );
+  let hashStr = '';
+  for (let i = 0; i < rawHash.length; i++) {
+    let byteVal = rawHash[i];
+    if (byteVal < 0) byteVal += 256;
+    let byteHex = byteVal.toString(16);
+    if (byteHex.length === 1) byteHex = '0' + byteHex;
+    hashStr += byteHex;
+  }
+  return hashStr;
+}
+
+/**
+ * Handle Login User (Memvalidasi akun, membuat sesi, dan mengembalikan token)
+ */
+function handleLogin_(e) {
+  try {
+    const body = parseRequestBody_(e);
+    const username = String(body.username || '').trim().toLowerCase();
+    const password = String(body.password || '').trim();
+    const userAgent = String(body.user_agent || 'Unknown');
+
+    if (!username || !password) {
+      return responseError_('Username dan password wajib diisi.', 422);
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const usersSheet = ss.getSheetByName(CONFIG.USERS_SHEET || 'users');
+    const sessionSheet = ss.getSheetByName(CONFIG.SESSION_SHEET || 'session');
+
+    if (!usersSheet || !sessionSheet) {
+      return responseError_('Sheet users atau session tidak ditemukan.', 500);
+    }
+
+    const usersData = usersSheet.getDataRange().getValues();
+    let foundUser = null;
+    let userRowIndex = -1;
+
+    for (let i = 1; i < usersData.length; i++) {
+      const row = usersData[i];
+      const rowUsername = String(row[1] || '').trim().toLowerCase();
+      if (rowUsername === username) {
+        foundUser = row;
+        userRowIndex = i + 1;
+        break;
+      }
+    }
+
+    if (!foundUser) {
+      return responseError_('Username atau password salah.', 401);
+    }
+
+    const storedHash = String(foundUser[4] || '').trim();
+    const inputHash = hashPassword_(password);
+
+    if (storedHash !== inputHash) {
+      return responseError_('Username atau password salah.', 401);
+    }
+
+    const status = String(foundUser[6] || '').trim();
+    if (status !== (CONFIG.USER_STATUS_ACTIVE || 'Active')) {
+      return responseError_('Akun Anda sedang dinonaktifkan. Hubungi admin.', 403);
+    }
+
+    const now = new Date();
+    const durationHours = CONFIG.SESSION_DURATION_HOURS || 24;
+    const expiresAt = new Date(now.getTime() + durationHours * 60 * 60 * 1000);
+
+    const tz = CONFIG.TIMEZONE || 'Asia/Jakarta';
+    const nowFormatted = Utilities.formatDate(now, tz, 'yyyy-MM-dd HH:mm:ss');
+    const expiresFormatted = Utilities.formatDate(expiresAt, tz, 'yyyy-MM-dd HH:mm:ss');
+
+    // Update last_login di sheet users
+    usersSheet.getRange(userRowIndex, 8).setValue(nowFormatted);
+
+    // Buat session ID dan session token
+    const dateStr = Utilities.formatDate(now, tz, 'yyyyMMdd');
+    const randomHex = Utilities.getUuid().replace(/-/g, '').substring(0, 6).toUpperCase();
+    const sessionId = 'SES-' + dateStr + '-' + randomHex;
+    const sessionToken = 'tok_' + Utilities.getUuid().replace(/-/g, '');
+
+    // Simpan ke sheet session
+    sessionSheet.appendRow([
+      sessionId,
+      foundUser[0], // user_id
+      'unknown',     // ip_address
+      userAgent,
+      sessionToken,
+      nowFormatted,
+      nowFormatted,
+      expiresFormatted,
+      CONFIG.SESSION_STATUS_ACTIVE || 'Active'
+    ]);
+
+    return responseSuccess_({
+      user: {
+        user_id: foundUser[0],
+        username: foundUser[1],
+        email: foundUser[2],
+        full_name: foundUser[3],
+        role: foundUser[5],
+        status: foundUser[6]
+      },
+      session: {
+        session_id: sessionId,
+        session_token: sessionToken,
+        login_time: nowFormatted,
+        expires_at: expiresFormatted
+      }
+    }, 'Login berhasil.');
+  } catch (error) {
+    console.error('Error in handleLogin_:', error);
+    return responseError_('Gagal melakukan login: ' + error.message, 500);
+  }
+}
+
+/**
+ * Handle Logout User
+ */
+function handleLogout_(e) {
+  try {
+    const body = parseRequestBody_(e);
+    const token = body.session_token || (e.parameter && e.parameter.session_token);
+
+    if (!token) {
+      return responseError_('Session token wajib disertakan.', 422);
+    }
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sessionSheet = ss.getSheetByName(CONFIG.SESSION_SHEET || 'session');
+    if (!sessionSheet) {
+      return responseError_('Sheet session tidak ditemukan.', 500);
+    }
+
+    const sessionData = sessionSheet.getDataRange().getValues();
+    for (let i = 1; i < sessionData.length; i++) {
+      if (String(sessionData[i][4] || '').trim() === String(token).trim()) {
+        sessionSheet.getRange(i + 1, 9).setValue(CONFIG.SESSION_STATUS_LOGGED_OUT || 'Logged Out');
+        break;
+      }
+    }
+
+    return responseSuccess_(null, 'Logout berhasil.');
+  } catch (error) {
+    console.error('Error in handleLogout_:', error);
+    return responseError_('Gagal logout: ' + error.message, 500);
+  }
+}
 ```
 
 ---
