@@ -43,6 +43,15 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/surat-masuk',
+    name: 'SuratMasuk',
+    component: () => import('@/views/SuratMasukView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Surat Masuk - ADM PAC Buaran',
+    },
+  },
+  {
     path: '/api-docs',
     name: 'ApiDocs',
     component: () => import('@/views/ApiDocsView.vue'),

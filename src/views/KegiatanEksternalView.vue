@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useKegiatanStore } from '@/stores/kegiatan'
 import { useKegiatanEksternalStore } from '@/stores/kegiatanEksternal'
+import { useSuratMasukStore } from '@/stores/suratMasuk'
 import type { KegiatanEksternal, CreateKegiatanEksternalPayload } from '@/types/kegiatanEksternal'
 import {
   LayoutDashboard,
@@ -29,12 +30,17 @@ import {
   Sparkles,
   Server,
   UserCheck,
+  Menu,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const kegiatanInternalStore = useKegiatanStore()
 const kegiatanStore = useKegiatanEksternalStore()
+const suratMasukStore = useSuratMasukStore()
+
+// State Drawer Mobile
+const isMobileMenuOpen = ref(false)
 
 // State Form Modal
 const isModalOpen = ref(false)
@@ -70,6 +76,7 @@ onMounted(async () => {
     await Promise.all([
       kegiatanStore.fetchItems(),
       kegiatanInternalStore.fetchItems(),
+      suratMasukStore.fetchItems(),
     ])
   } catch (err) {
     console.error('Initial fetch failed:', err)
@@ -168,8 +175,38 @@ async function handleLogout() {
 
 <template>
   <div class="app-layout">
+    <!-- MOBILE TOPBAR BAR -->
+    <header class="mobile-navbar">
+      <button
+        class="btn-hamburger"
+        @click="isMobileMenuOpen = !isMobileMenuOpen"
+        aria-label="Toggle Menu"
+      >
+        <Menu v-if="!isMobileMenuOpen" :size="22" />
+        <X v-else :size="22" />
+      </button>
+      <div class="mobile-brand">
+        <div class="logo-box-sm">
+          <Sparkles :size="16" />
+        </div>
+        <span class="mobile-brand-title">PAC Buaran</span>
+      </div>
+      <div class="mobile-avatar">
+        {{ (authStore.user?.full_name || authStore.user?.username || 'A')[0].toUpperCase() }}
+      </div>
+    </header>
+
+    <!-- BACKDROP FOR MOBILE DRAWER -->
+    <transition name="fade">
+      <div
+        v-if="isMobileMenuOpen"
+        class="sidebar-backdrop"
+        @click="isMobileMenuOpen = false"
+      ></div>
+    </transition>
+
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'drawer-open': isMobileMenuOpen }">
       <div class="sidebar-header">
         <div class="logo-box">
           <Sparkles :size="20" class="logo-icon" />
@@ -178,21 +215,24 @@ async function handleLogout() {
           <h2>PAC Buaran</h2>
           <span>Portal Administrasi</span>
         </div>
+        <button class="btn-close-drawer" @click="isMobileMenuOpen = false" aria-label="Tutup Menu">
+          <X :size="18" />
+        </button>
       </div>
 
       <nav class="sidebar-menu">
         <div class="menu-group">
           <span class="group-title">MAIN MENU</span>
-          <RouterLink to="/dashboard" class="menu-item">
+          <RouterLink to="/dashboard" class="menu-item" @click="isMobileMenuOpen = false">
             <LayoutDashboard :size="18" />
             <span>Dashboard</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-internal" class="menu-item">
+          <RouterLink to="/kegiatan-internal" class="menu-item" @click="isMobileMenuOpen = false">
             <Calendar :size="18" />
             <span>Kegiatan Internal</span>
             <span class="item-badge" v-if="kegiatanInternalStore.totalKegiatan">{{ kegiatanInternalStore.totalKegiatan }}</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-eksternal" class="menu-item active">
+          <RouterLink to="/kegiatan-eksternal" class="menu-item active" @click="isMobileMenuOpen = false">
             <Compass :size="18" />
             <span>Kegiatan Eksternal</span>
             <span class="item-badge" v-if="kegiatanStore.totalKegiatan">{{ kegiatanStore.totalKegiatan }}</span>
@@ -205,10 +245,11 @@ async function handleLogout() {
             <Users :size="18" />
             <span>Data Pengurus</span>
           </a>
-          <a href="#" class="menu-item disabled">
+          <RouterLink to="/surat-masuk" class="menu-item" title="Modul Surat Masuk" @click="isMobileMenuOpen = false">
             <FileText :size="18" />
-            <span>Surat & Kearsipan</span>
-          </a>
+            <span>Surat Masuk</span>
+            <span class="item-badge" v-if="suratMasukStore.totalSuratMasuk">{{ suratMasukStore.totalSuratMasuk }}</span>
+          </RouterLink>
           <a href="#" class="menu-item disabled">
             <DollarSign :size="18" />
             <span>Laporan Keuangan</span>
@@ -1252,10 +1293,200 @@ async function handleLogout() {
   animation: spin 0.8s linear infinite;
 }
 
+/* MOBILE NAVBAR & DRAWER STYLES */
+.mobile-navbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-shadow: 0 2px 8px rgba(9, 44, 43, 0.04);
+}
+
+.btn-hamburger {
+  background: transparent;
+  border: none;
+  color: var(--primary-dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.btn-hamburger:hover {
+  background: #f1f8f7;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-box-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-dark);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-brand-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--primary-dark);
+}
+
+.mobile-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--pastel-teal-bg);
+  color: var(--pastel-teal-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-close-drawer {
+  display: none;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+}
+
+.btn-close-drawer:hover {
+  background: #f1f8f7;
+  color: var(--primary-dark);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 44, 43, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
+/* RESPONSIVE */
 @media (max-width: 860px) {
-  .app-layout { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: static; }
-  .topbar { padding: 1rem; flex-direction: column; align-items: stretch; }
-  .content-body { padding: 0 1rem 2rem; }
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .mobile-navbar {
+    display: flex;
+  }
+
+  .btn-close-drawer {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .sidebar.drawer-open {
+    transform: translateX(0);
+    box-shadow: 10px 0 35px rgba(9, 44, 43, 0.25);
+  }
+
+  .topbar {
+    padding: 1rem 1.25rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.85rem;
+  }
+
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .topbar-right {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .content-body {
+    padding: 0 1rem 2rem;
+    gap: 1.5rem;
+  }
+
+  .page-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-action-group {
+    width: 100%;
+  }
+
+  .header-action-group .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .toolbar-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-box {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filter-select {
+    flex: 1;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .modal-card {
+    max-width: 95vw;
+  }
+}
+
+@media (min-width: 520px) and (max-width: 860px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 </style>

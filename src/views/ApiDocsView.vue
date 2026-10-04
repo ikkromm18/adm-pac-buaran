@@ -464,6 +464,138 @@ function copyText(text: string, id: string) {
           </div>
         </div>
       </article>
+
+      <!-- Endpoint 10: Surat Masuk List -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag post">POST</div>
+          <div class="endpoint-path">
+            <code>?action=surat_masuk_list</code>
+          </div>
+          <span class="endpoint-desc">Ambil Seluruh Data Sheet surat-masuk</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Request Body</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{}</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-section">
+            <h4>Response Sukses (200 OK)</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "success": true,
+  "message": "Data surat masuk berhasil diambil.",
+  "data": [
+    {
+      "no": 1,
+      "jenis_pengarsipan": "D4",
+      "nomor_surat": "264/PC/A/XXIV/7354/IV/26",
+      "tgl_diterima": "13/04/2026",
+      "pengirim": "PC IPNU Kab. Pekalongan",
+      "isi_perihal": "Undangan",
+      "tgl_surat": "13/04/2026",
+      "terusan": "-",
+      "disposisi": "-",
+      "keterangan": "Undangan Koordinasi LAKUT dan DIKLATMAD",
+      "_rowNumber": 2
+    }
+  ]
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Endpoint 11: Surat Masuk Create -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag post">POST</div>
+          <div class="endpoint-path">
+            <code>?action=surat_masuk_create</code>
+          </div>
+          <span class="endpoint-desc">Tambah Baris Baru pada Sheet surat-masuk</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Request Body (JSON)</h4>
+            <div class="code-block-wrapper">
+              <button
+                class="btn-code-copy"
+                @click="copyText(JSON.stringify({
+                  jenis_pengarsipan: 'D4',
+                  nomor_surat: '264/PC/A/XXIV/7354/IV/26',
+                  tgl_diterima: '13/04/2026',
+                  pengirim: 'PC IPNU Kab. Pekalongan',
+                  isi_perihal: 'Undangan',
+                  tgl_surat: '13/04/2026',
+                  terusan: '-',
+                  disposisi: '-',
+                  keterangan: 'Undangan Koordinasi LAKUT dan DIKLATMAD'
+                }, null, 2), 'surat-masuk-create-req')"
+              >
+                <Check v-if="copiedIndex === 'surat-masuk-create-req'" :size="14" />
+                <Copy v-else :size="14" />
+              </button>
+              <pre><code>{
+  "jenis_pengarsipan": "D4",
+  "nomor_surat": "264/PC/A/XXIV/7354/IV/26",
+  "tgl_diterima": "13/04/2026",
+  "pengirim": "PC IPNU Kab. Pekalongan",
+  "isi_perihal": "Undangan",
+  "tgl_surat": "13/04/2026",
+  "terusan": "-",
+  "disposisi": "-",
+  "keterangan": "Undangan Koordinasi LAKUT dan DIKLATMAD"
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Endpoint 12: Surat Masuk Update & Delete -->
+      <article class="endpoint-card white-card">
+        <div class="endpoint-header">
+          <div class="method-tag post">POST</div>
+          <div class="endpoint-path">
+            <code>?action=surat_masuk_update &bull; ?action=surat_masuk_delete</code>
+          </div>
+          <span class="endpoint-desc">Ubah / Hapus Data Surat Masuk Berdasarkan Kolom No</span>
+        </div>
+
+        <div class="endpoint-content">
+          <div class="doc-section">
+            <h4>Update Payload</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "no": 1,
+  "jenis_pengarsipan": "D4",
+  "nomor_surat": "264/PC/A/XXIV/7354/IV/26",
+  "tgl_diterima": "13/04/2026",
+  "pengirim": "PC IPNU Kab. Pekalongan",
+  "isi_perihal": "Undangan",
+  "tgl_surat": "13/04/2026",
+  "terusan": "Departemen Kaderisasi",
+  "disposisi": "Dihadiri 2 pengurus",
+  "keterangan": "Undangan Koordinasi LAKUT dan DIKLATMAD (Revisi)"
+}</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-section">
+            <h4>Delete Payload</h4>
+            <div class="code-block-wrapper">
+              <pre><code>{
+  "no": 1
+}</code></pre>
+            </div>
+          </div>
+        </div>
+      </article>
     </main>
   </div>
 </template>
@@ -641,5 +773,33 @@ function copyText(text: string, id: string) {
   font-size: 0.8rem;
   color: #d1fae5;
   line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .nav-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  .header-badge {
+    align-self: flex-start;
+  }
+  .docs-container {
+    padding: 0 1rem;
+    margin: 1.25rem auto;
+  }
+  .info-banner {
+    flex-direction: column;
+    padding: 1.15rem;
+  }
+  .endpoint-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  .endpoint-content {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

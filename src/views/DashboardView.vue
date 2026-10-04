@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useKegiatanStore } from '@/stores/kegiatan'
 import { useKegiatanEksternalStore } from '@/stores/kegiatanEksternal'
+import { useSuratMasukStore } from '@/stores/suratMasuk'
 import {
   LayoutDashboard,
   Calendar,
@@ -29,13 +30,18 @@ import {
   Clock,
   Sparkles,
   ExternalLink,
+  Inbox,
+  Menu,
+  X,
 } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const kegiatanStore = useKegiatanStore()
 const kegiatanEksternalStore = useKegiatanEksternalStore()
+const suratMasukStore = useSuratMasukStore()
 
+const isMobileMenuOpen = ref(false)
 const tokenCopied = ref(false)
 const selectedMonth = ref('Bulan Ini')
 const searchQuery = ref('')
@@ -48,6 +54,7 @@ onMounted(async () => {
     await Promise.all([
       kegiatanStore.fetchItems(),
       kegiatanEksternalStore.fetchItems(),
+      suratMasukStore.fetchItems(),
     ])
   } catch (err) {
     console.error('Error fetching data:', err)
@@ -97,8 +104,38 @@ const recentKegiatan = computed(() => {
 
 <template>
   <div class="app-layout">
+    <!-- MOBILE TOPBAR BAR -->
+    <header class="mobile-navbar">
+      <button
+        class="btn-hamburger"
+        @click="isMobileMenuOpen = !isMobileMenuOpen"
+        aria-label="Toggle Menu"
+      >
+        <Menu v-if="!isMobileMenuOpen" :size="22" />
+        <X v-else :size="22" />
+      </button>
+      <div class="mobile-brand">
+        <div class="logo-box-sm">
+          <Sparkles :size="16" />
+        </div>
+        <span class="mobile-brand-title">PAC Buaran</span>
+      </div>
+      <div class="mobile-avatar">
+        {{ (authStore.user?.full_name || authStore.user?.username || 'A')[0].toUpperCase() }}
+      </div>
+    </header>
+
+    <!-- BACKDROP FOR MOBILE DRAWER -->
+    <transition name="fade">
+      <div
+        v-if="isMobileMenuOpen"
+        class="sidebar-backdrop"
+        @click="isMobileMenuOpen = false"
+      ></div>
+    </transition>
+
     <!-- LEFT SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ 'drawer-open': isMobileMenuOpen }">
       <div class="sidebar-header">
         <div class="logo-box">
           <Sparkles :size="20" class="logo-icon" />
@@ -107,21 +144,24 @@ const recentKegiatan = computed(() => {
           <h2>PAC Buaran</h2>
           <span>Portal Administrasi</span>
         </div>
+        <button class="btn-close-drawer" @click="isMobileMenuOpen = false" aria-label="Tutup Menu">
+          <X :size="18" />
+        </button>
       </div>
 
       <nav class="sidebar-menu">
         <div class="menu-group">
           <span class="group-title">MAIN MENU</span>
-          <RouterLink to="/dashboard" class="menu-item active">
+          <RouterLink to="/dashboard" class="menu-item active" @click="isMobileMenuOpen = false">
             <LayoutDashboard :size="18" />
             <span>Dashboard</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-internal" class="menu-item">
+          <RouterLink to="/kegiatan-internal" class="menu-item" @click="isMobileMenuOpen = false">
             <Calendar :size="18" />
             <span>Kegiatan Internal</span>
             <span class="item-badge" v-if="kegiatanStore.totalKegiatan">{{ kegiatanStore.totalKegiatan }}</span>
           </RouterLink>
-          <RouterLink to="/kegiatan-eksternal" class="menu-item">
+          <RouterLink to="/kegiatan-eksternal" class="menu-item" @click="isMobileMenuOpen = false">
             <Compass :size="18" />
             <span>Kegiatan Eksternal</span>
             <span class="item-badge" v-if="kegiatanEksternalStore.totalKegiatan">{{ kegiatanEksternalStore.totalKegiatan }}</span>
@@ -134,10 +174,11 @@ const recentKegiatan = computed(() => {
             <Users :size="18" />
             <span>Data Pengurus</span>
           </a>
-          <a href="#" class="menu-item disabled" title="Modul Anggota">
+          <RouterLink to="/surat-masuk" class="menu-item" title="Modul Surat Masuk" @click="isMobileMenuOpen = false">
             <FileText :size="18" />
-            <span>Surat & Kearsipan</span>
-          </a>
+            <span>Surat Masuk</span>
+            <span class="item-badge" v-if="suratMasukStore.totalSuratMasuk">{{ suratMasukStore.totalSuratMasuk }}</span>
+          </RouterLink>
           <a href="#" class="menu-item disabled" title="Modul Keuangan">
             <DollarSign :size="18" />
             <span>Laporan Keuangan</span>
@@ -149,11 +190,11 @@ const recentKegiatan = computed(() => {
           <span class="group-title superadmin-group">
             SISTEM & API (SUPERADMIN)
           </span>
-          <RouterLink to="/api-docs" class="menu-item superadmin-link">
+          <RouterLink to="/api-docs" class="menu-item superadmin-link" @click="isMobileMenuOpen = false">
             <BookOpen :size="18" />
             <span>Dokumentasi API</span>
           </RouterLink>
-          <a href="#gas-technical-panel" class="menu-item superadmin-link">
+          <a href="#gas-technical-panel" class="menu-item superadmin-link" @click="isMobileMenuOpen = false">
             <Server :size="18" />
             <span>Status Server GAS</span>
           </a>
@@ -393,6 +434,31 @@ const recentKegiatan = computed(() => {
                 <span>Delegasi PAC Buaran</span>
               </div>
             </div>
+
+            <!-- Card 6: Pastel Sky Blue (Surat Masuk) -->
+            <div class="pastel-card blue">
+              <div class="card-top">
+                <div class="icon-circle blue">
+                  <Inbox :size="16" />
+                </div>
+                <button class="more-btn" @click="router.push('/surat-masuk')" title="Buka Surat Masuk">
+                  <ExternalLink :size="16" />
+                </button>
+              </div>
+              <span class="card-category">Surat Masuk</span>
+              <div class="card-middle">
+                <div class="card-value">{{ suratMasukStore.totalSuratMasuk }}</div>
+                <div class="sparkline-bars">
+                  <span class="bar h-50"></span>
+                  <span class="bar h-70"></span>
+                  <span class="bar h-95 dark"></span>
+                  <span class="bar h-60"></span>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span>Sheet <code>surat-masuk</code></span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -627,6 +693,63 @@ const recentKegiatan = computed(() => {
                 <tr v-if="recentKegiatan.length === 0">
                   <td colspan="6" class="text-center py-4 text-muted">
                     Belum ada data kegiatan internal.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- RECENT SURAT MASUK LIST -->
+        <section class="white-card recent-list-card">
+          <div class="list-header">
+            <div>
+              <h3>Daftar Surat Masuk Terbaru</h3>
+              <p class="list-sub">Arsip nomor surat, instansi pengirim, dan disposisi terdaftar</p>
+            </div>
+            <div class="list-header-actions">
+              <RouterLink to="/surat-masuk" class="btn btn-secondary btn-sm">
+                <span>Kelola Surat Masuk</span>
+                <ArrowRight :size="14" />
+              </RouterLink>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th style="width: 80px;">Kode</th>
+                  <th>Nomor Surat</th>
+                  <th style="width: 120px;">Tgl Terima</th>
+                  <th>Pengirim</th>
+                  <th>Perihal</th>
+                  <th>Disposisi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="surat in suratMasukStore.recentSuratMasuk" :key="surat.no">
+                  <td class="font-mono text-dim">{{ surat.no }}</td>
+                  <td>
+                    <span class="badge badge-info font-mono">{{ surat.jenis_pengarsipan || '-' }}</span>
+                  </td>
+                  <td>
+                    <span class="font-bold text-main">{{ surat.nomor_surat }}</span>
+                  </td>
+                  <td>{{ surat.tgl_diterima }}</td>
+                  <td>{{ surat.pengirim }}</td>
+                  <td>{{ surat.isi_perihal }}</td>
+                  <td>
+                    <span v-if="surat.disposisi && surat.disposisi !== '-'" class="badge badge-warning">
+                      {{ surat.disposisi }}
+                    </span>
+                    <span v-else class="text-dim">-</span>
+                  </td>
+                </tr>
+                <tr v-if="suratMasukStore.recentSuratMasuk.length === 0">
+                  <td colspan="7" class="text-center py-4 text-muted">
+                    Belum ada data surat masuk dari sheet.
                   </td>
                 </tr>
               </tbody>
@@ -1144,6 +1267,11 @@ const recentKegiatan = computed(() => {
   color: var(--pastel-amber-text);
 }
 
+.pastel-card.blue {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
 .card-top {
   display: flex;
   align-items: center;
@@ -1164,6 +1292,7 @@ const recentKegiatan = computed(() => {
 .icon-circle.pink { background: var(--pastel-pink-accent); color: var(--pastel-pink-text); }
 .icon-circle.purple { background: var(--pastel-purple-accent); color: var(--pastel-purple-text); }
 .icon-circle.amber { background: var(--pastel-amber-accent); color: var(--pastel-amber-text); }
+.icon-circle.blue { background: #dbeafe; color: #2563eb; }
 
 .more-btn {
   background: transparent;
@@ -1660,23 +1789,200 @@ const recentKegiatan = computed(() => {
   background: #ddd6fe;
 }
 
+/* MOBILE NAVBAR & DRAWER STYLES */
+.mobile-navbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.25rem;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  box-shadow: 0 2px 8px rgba(9, 44, 43, 0.04);
+}
+
+.btn-hamburger {
+  background: transparent;
+  border: none;
+  color: var(--primary-dark);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.btn-hamburger:hover {
+  background: #f1f8f7;
+}
+
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-box-sm {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--primary-dark);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-brand-title {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--primary-dark);
+}
+
+.mobile-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--pastel-teal-bg);
+  color: var(--pastel-teal-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border: 2px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.btn-close-drawer {
+  display: none;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 6px;
+}
+
+.btn-close-drawer:hover {
+  background: #f1f8f7;
+  color: var(--primary-dark);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 44, 43, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 99;
+}
+
 /* RESPONSIVE */
 @media (max-width: 860px) {
   .app-layout {
     flex-direction: column;
   }
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
+
+  .mobile-navbar {
+    display: flex;
   }
+
+  .btn-close-drawer {
+    display: flex;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    width: 280px;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  .sidebar.drawer-open {
+    transform: translateX(0);
+    box-shadow: 10px 0 35px rgba(9, 44, 43, 0.25);
+  }
+
   .topbar {
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     flex-direction: column;
     align-items: stretch;
+    gap: 0.85rem;
   }
+
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .topbar-right {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
   .content-body {
     padding: 0 1rem 2rem;
+    gap: 1.5rem;
+  }
+
+  .welcome-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .welcome-header .add-kegiatan-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recent-list-card {
+    padding: 1.15rem;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .list-header-actions {
+    width: 100%;
+  }
+
+  .list-header-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .superadmin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 520px) and (max-width: 860px) {
+  .cards-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>
